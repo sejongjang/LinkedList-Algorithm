@@ -1,186 +1,163 @@
-#include "LinkedListInterface.h" 
-#include <stdexcept> 
-#include <sstream> 
-using namespace std; 
-#define STARTSIZE 4 
-template <class T>
+#pragma once
+#include <iostream>
+#include <fstream>
+#include <stdexcept>
+#include <string>
+#include <sstream>
+#include "LinkedListInterface.h"
+#define STARTSIZE 4
 
-class LinkedList: public LinkedListInterface<T> {
-private: 
+using namespace std;
+template<class T>
+
+class LinkedList : public LinkedListInterface<T> {
+private:
 	struct Node {
 		T data;
-		Node* next; 
-		Node(const T& the_data, Node* next_val = NULL) : 
-			data(the_data) {next = next_val;}
-	}; 
-	
-	Node* head; 
-	int num_items; 
-	
-public: 
-	LinkedList(void) {
-		head = NULL; 
-		num_items = 0; 
-	}; 
-	~LinkedList() {
-		clear(); 
+		Node* next;
+		Node(T& the_data, Node* next_val = NULL) {
+			data = the_data;
+			next = next_val;
+		}
 	};
-	
-	bool dupCheck (T value) {
-		Node* temp = head; 
-		while (temp -> data != value) {
-			temp = temp -> next; 
-			if (temp == NULL) {
-				return true; 
+
+	Node* h;
+	int num_items;
+
+public:
+	LinkedList() {
+		num_items = 0;
+	}
+	~LinkedList() {
+		clear();
+	}
+
+	bool dupCheck(T value) {
+		Node* t = h;
+		while (t->data != value) {
+			t = t->next;
+			if (t == NULL) {
+				return true;
 			}
 		}
-		return false; 
-	}; 
-	
-	
+		return false;
+	}
+
 	void insertHead(T value) {
 		if (num_items == 0) {
-			Node* newnode = new Node (value, NULL); 
-			head = newnode; 
-			num_items++; 
-			return; 
+			Node* newnode = new Node(value, NULL);
+			h = newnode;
+			num_items++;
 		}
 		else {
 			if (dupCheck(value) == true) {
-				Node* newnode = new Node (value, NULL); 
-				newnode -> next = head; 
-				head = newnode; 
-				num_items++; 
-				return; 
-			}
-			else {
-				return; 
+				Node* newnode = new Node(value, NULL);
+				newnode->next = h;
+				h = newnode;
+				num_items++;
 			}
 		}
-	}; 
-	
+	}
+
 	void insertTail(T value) {
 		if (num_items == 0) {
-			insertHead(value); 
+			insertHead(value);
 		}
 		else {
 			if (dupCheck(value) == true) {
-				Node* newnode = new Node (value, NULL); 
-				Node* temp = head; 
-				while (temp -> next != NULL) {
-					temp = temp -> next; 
+				Node* newnode = new Node(value, NULL);
+				Node* t = h;
+				while (t->next != NULL) {
+					t = t->next;
 				}
-				temp -> next = newnode; 
-				num_items++; 
-				return; 
-			}
-			else {
-				return; 
+				t->next = newnode;
+				num_items++;
 			}
 		}
-	}; 
-	
+	}
+
 	void insertAfter(T value, T insertionNode) {
-		if (num_items == 0) {
-			return;  
-		}
-		else {
-			if (dupCheck(value) == true) {
-				Node* temp = head;
-				while (temp -> data != insertionNode) {
-					temp = temp -> next; 
-					if (temp == NULL) {
-						return; 
-					}
+		if (dupCheck(value) == true) {
+			Node* t = h;
+			while (t->data != insertionNode) {
+				t = t->next;
+				if (t == NULL) {
+					return;
 				}
-				Node* newnode = new Node(value, NULL); 
-				newnode -> next = temp -> next; 
-				temp -> next = newnode; 
-				num_items++; 
-				return; 
 			}
-			else {
-				return; 
-			}
+			Node* newnode = new Node(value, NULL);
+			newnode->next = t->next;
+			t->next = newnode;
+			num_items++;
 		}
-	}; 
-	
+	}
+
 	void remove(T value) {
-		if (num_items == 0) {
-			return;  
+		if (h->data == value) {
+			Node* removePtr = h;
+			h = removePtr->next;
+			delete removePtr;
+			num_items--;
 		}
 		else {
-			if (head -> data == value) {
-				Node* stuff = head; 
-				head = stuff -> next; 
-				delete stuff; 
-				num_items--; 
-				return; 
-			}
-			else {
-				Node* temp = head; 
-				while (temp -> next -> data != value) {
-					temp = temp -> next; 
-					if (temp -> next == NULL) {
-						return; 
-					}
+			Node* t = h;
+			while (t->next->data != value) {
+				t = t->next;
+				if (t->next == NULL) {
+					return;
 				}
-				Node* something; 
-				something = temp -> next; 
-				temp -> next = temp -> next -> next; 
-				delete something; 
-				num_items--; 
-				return; 
 			}
+			Node* removePtr;
+			removePtr = t->next;
+			t->next = t->next->next;
+			delete removePtr;
+			num_items--;
 		}
-	}; 
-	
-	T at (int index) {
-		T thing; 
+	}
+
+	T at(int index) {
+		T thing;
 		if ((index >= num_items) || (index < 0)) {
-			throw std::out_of_range("");
+			cout << "out of range" << endl;
 		}
 		else {
-			Node* ptr = head; 
-			for (int i = 0; i < num_items; i++) {
+			Node* ptr = h;
+			for (int i = 0; i < num_items; ++i) {
 				if (index == i) {
-					thing = ptr -> data;
-					return thing;  
+					thing = ptr->data;
+					return thing;
 				}
 				else {
-					ptr = ptr -> next; 
+					ptr = ptr->next;
 				}
 			}
 		}
-	}; 
-	
-	
+	};
+
 	int size() {
-		return(num_items); 
-	}; 
-	
+		return num_items;
+	}
+
 	void clear() {
-		while(head != NULL) {
-			Node *current = head;
-			head = head->next;
+		while (h != NULL) {
+			Node* current = h;
+			h = h->next;
 			delete current;
-			num_items--; 
-		};
-	}; 
-	
+			num_items--;
+		}
+	}
+
 	string toString() {
-		if (head == NULL) {
-			return ""; 
+		if (h == NULL) {
+			return "";
 		}
+		
 		stringstream ss;
-		for (Node* ptr = head; ptr != NULL; ptr = ptr -> next) {
-			ss << ptr -> data << " "; 
+
+		for (Node* ptr = h; ptr != NULL; ptr = ptr->next) {
+			ss << ptr->data << " ";
 		}
-		string finalOutput = ss.str(); 
-		ss.str(""); 
-		finalOutput.erase(finalOutput.length() - 1, 1); 
-		ss << finalOutput; 
-		return ss.str(); 
-	}; 
-	
-}; 
+		
+		return ss.str();
+	}
+};
